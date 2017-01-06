@@ -1,5 +1,7 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
+import * as lodash from "lodash";
+import * as Chart from "chart.js";
 import {Dispatcher} from "flux";
 
 declare let gapi: any;
@@ -24,12 +26,12 @@ function onFailure(error) {
 }
 
 function updateTags(description, tags) {
-  const index = (description || "").indexOf("--autotags:");
+  const index = description.indexOf("--autotags:");
   const newTagRow = "--autotags: " + tags;
   if (index >= 0) {
     return description.substring(0, index - 1) + newTagRow;
   } else {
-    return (description || "") + "\n" + newTagRow;
+    return description + "\n" + newTagRow;
   }
 }
 
@@ -38,10 +40,8 @@ export interface EventItemState { tags: string; }
 class EventItem extends React.Component<EventItemProps, EventItemState> {
   constructor(props) {
     super(props);
-    const tags = (props.item.description || "").match(tagRegex) || [];
-    const people = (props.item.description || "").match(peopleRegex) || [];
     this.state = {
-      tags: tags.concat(people).join(" "),
+      tags: props.item.metadata.tags.concat(props.item.metadata.people).join(" "),
     };
   }
   async onUpdate() {
@@ -52,7 +52,7 @@ class EventItem extends React.Component<EventItemProps, EventItemState> {
     await gapi.client.calendar.events.update({
       calendarId: "primary",
       eventId: this.props.item.id,
-      resource: Object.assign({}, this.props.item, {description: updateTags(this.props.item.description, this.state.tags)}),
+      resource: Object.assign({}, this.props.item, {metadata: null, description: updateTags(this.props.item.description, this.state.tags)}),
     });
   }
   async onDelete() {
@@ -100,6 +100,60 @@ const EventList = (props) => (
   </table>
 );
 
+export interface ReportProps { events: any; }
+export interface ReportState { report: any; }
+class Report extends React.Component<ReportProps, ReportState> {
+  constructor(props) {
+    super(props);
+    const instanceReport = lodash.flatten(props.events.map(e => e.metadata.tags)).reduce((result, tag) => {
+      result[tag] = result[tag] || 0;
+      result[tag] += 1;
+      return result;
+    }, {});
+    this.state = {report: instanceReport};
+  }
+  componentDidMount() {
+    const ctx = document.getElementById("timeTagsChart");
+    new Chart(ctx, {
+      type: "pie",
+      data: {
+        labels: Object.keys(this.state.report),
+        datasets: [{
+          data: lodash.values(this.state.report),
+          backgroundColor: ["red", "yellow"],
+        }],
+      },
+      options: {
+        responsive: false,
+      },
+    });
+  }
+  render() {
+    return (
+      <div>
+        <table className="table">
+          <tbody>
+            {lodash.map(this.state.report, (v,k) => (<tr>
+              <td>{k}</td>
+              <td>{v}</td>
+            </tr>))}
+          </tbody>
+        </table>
+        <canvas id="timeTagsChart" width="400" height="400"></canvas>
+      </div>
+    );
+  }
+};
+
+const MainPage = (props) => (
+  <div className="main-page">
+    <h2>Report</h2>
+    <Report events={props.events} />
+    <h2>Events List</h2>
+    <EventList events={props.events} />
+  </div>
+);
+
 
 async function listUpcomingEvents() {
   const resp = await gapi.client.calendar.events.list({
@@ -109,10 +163,19 @@ async function listUpcomingEvents() {
     singleEvents: true,
     orderBy: "startTime",
   });
-  const events = resp.result.items;
+  const events = resp.result.items.map(e => {
+    if (!e.description) {
+      e.description = "";
+    }
+    e.metadata = {
+      tags: e.description.match(tagRegex) || [],
+      people: e.description.match(peopleRegex) || [],
+    };
+    return e;
+  });
 
   if (events.length > 0) {
-    ReactDOM.render(<EventList events={events}/>, document.getElementById("categorcal-placeholder"));
+    ReactDOM.render(<MainPage events={events}/>, document.getElementById("categorcal-placeholder"));
   } else {
     ReactDOM.render(<div>No upcoming events found.</div>, document.getElementById("categorcal-placeholder"));
   }
