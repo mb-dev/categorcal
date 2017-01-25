@@ -1,4 +1,5 @@
 .report {
+  overflow: hidden;
   .report-table {
     float: left;
     width: 50%;
@@ -9,3 +10,46 @@
     float: left;
   }
 }
+
+.event-list {
+  .even {
+    background-color: #f9f9f9;
+  }
+  .odd {
+
+  }
+}
+
+.react-autosuggest__container {
+  display: inline-block;
+}
+.react-autosuggest__input{
+  width: 100%;
+  border: solid lightgrey 1px;
+}
+
+.react-autosuggest__suggestions-container {
+  z-index: 1000;
+  position: absolute;
+}
+.react-autosuggest__container--open .react-autosuggest__suggestions-container{
+  border-left: solid lightgray 1px;
+  border-right: solid lightgray 1px;
+  border-bottom: solid lightgray 1px;
+}
+.react-autosuggest__suggestions-list{
+  list-style-type: none;
+  margin: 0;
+  padding: 5px 0 3px 0;
+  background-color: white;
+}
+.react-autosuggest__suggestion{
+  cursor: pointer;
+  margin: 2px 5px 2px 5px;
+}
+.react-autosuggest__suggestion--focused{
+  background-color: lightgray;
+}
+.react-autosuggest__suggestions-container{  }
+.react-autosuggest__section-container{  }
+.react-autosuggest__section-title{  }

@@ -1,0 +1,2 @@
+export const FETCH_EVENTS_ACTION = "FETCH_EVENTS";
+
