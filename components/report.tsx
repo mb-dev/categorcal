@@ -1,6 +1,7 @@
 import * as React from "react";
 import * as Chart from "chart.js";
 import * as lodash from "lodash";
+import "./report.less";
 
 export interface ReportProps { events: any; }
 export interface ReportState { report: any; }
@@ -11,6 +12,14 @@ export default class Report extends React.Component<ReportProps, ReportState> {
   }
   getReport(props) {
     const instanceReport = lodash.flatten(props.events.map(e => e.metadata.tags)).reduce((result, tag) => {
+      result[tag] = result[tag] || 0;
+      result[tag] += 1;
+      return result;
+    }, {});
+    return instanceReport;
+  }
+  getPeopleReport(props) {
+    const instanceReport = lodash.flatten(props.events.map(e => e.metadata.people)).reduce((result, tag) => {
       result[tag] = result[tag] || 0;
       result[tag] += 1;
       return result;
@@ -44,9 +53,11 @@ export default class Report extends React.Component<ReportProps, ReportState> {
   }
   render() {
     const report = this.getReport(this.props);
+    const peopleReport = this.getPeopleReport(this.props);
     return (
       <div className="report">
         <div className="report-table">
+          <h2>Tags</h2>
           <table className="table">
             <tbody>
               {lodash.map(report, (v,k) => (<tr key={k}>
@@ -58,6 +69,17 @@ export default class Report extends React.Component<ReportProps, ReportState> {
         </div>
         <div className="chart-container">
           <canvas className="report-chart" id="timeTagsChart"></canvas>
+        </div>
+        <div className="report-table people-report">
+          <h2>Friends</h2>
+          <table className="table">
+            <tbody>
+              {lodash.map(peopleReport, (v,k) => (<tr key={k}>
+                <td>{k}</td>
+                <td>{v}</td>
+              </tr>))}
+            </tbody>
+          </table>
         </div>
       </div>
     );

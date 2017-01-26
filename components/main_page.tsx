@@ -3,6 +3,7 @@ import store from "../store/store";
 import actions from "../actions/actions";
 import Report from "./report";
 import EventList from "./event_list";
+import Calendar from "./calendar";
 import {EventSubscription} from "@types/fbemitter";
 
 interface MainPageProps {}
@@ -47,6 +48,8 @@ export default class MainPage extends React.Component<MainPageProps, MainPageSta
     }
     return (
       <div className="main-page">
+        <h2>Calendar</h2>
+        <Calendar events={this.state.events} />
         <h2>Report</h2>
         <Report events={this.state.events} />
         <h2>Events List</h2>

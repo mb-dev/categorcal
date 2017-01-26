@@ -1,0 +1,30 @@
+.calendar {
+  display: -webkit-flex;
+  display: flex;
+  -webkit-flex-direction: row;
+  flex-direction: row;
+  .calendar-quarter {
+    width: ~"calc(33% - 20px)";
+    margin-right: 20px;
+    table {
+      table-layout: fixed;
+      td {
+        font-size: 10px;
+        padding: 5px;
+      }
+      .Sat, .Sun {
+        background-color: #F0E68C;
+      }
+    }
+    .day {
+      color: gray;
+    }
+    h3 {
+      text-align: center;
+    }
+    ul {
+      list-style: none;
+      padding-left: 0;
+    }
+  }
+}
