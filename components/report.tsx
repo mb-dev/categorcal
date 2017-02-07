@@ -52,15 +52,16 @@ export default class Report extends React.Component<ReportProps, ReportState> {
     });
   }
   render() {
-    const report = this.getReport(this.props);
+    const tagReport = this.getReport(this.props);
     const peopleReport = this.getPeopleReport(this.props);
+    const sortReportProperties = (report) => lodash.chain(report).entries().sortBy(([k,v]) => v).reverse().value();
     return (
       <div className="report">
         <div className="report-table">
           <h2>Tags</h2>
           <table className="table">
             <tbody>
-              {lodash.map(report, (v,k) => (<tr key={k}>
+              {sortReportProperties(tagReport).map(([k,v]) => (<tr key={k}>
                 <td>{k}</td>
                 <td>{v}</td>
               </tr>))}
@@ -74,7 +75,7 @@ export default class Report extends React.Component<ReportProps, ReportState> {
           <h2>Friends</h2>
           <table className="table">
             <tbody>
-              {lodash.map(peopleReport, (v,k) => (<tr key={k}>
+              {sortReportProperties(peopleReport).map(([k,v]) => (<tr key={k}>
                 <td>{k}</td>
                 <td>{v}</td>
               </tr>))}
